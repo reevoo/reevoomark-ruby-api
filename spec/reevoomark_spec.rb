@@ -23,7 +23,7 @@ describe ReevooMark do
 
   context "with a new ReevooMark instance" do
     before do
-      FakeWeb.register_uri(:get, "http://mark.reevoo.com/foo?sku=SKU123&retailer=PNY", :body => "",
+      FakeWeb.register_uri(:get, "http://mark.reevoo.com/foo?sku=SKU123&retailer=PNY", :body => "test",
         "X-Reevoo-ReviewCount" => 12,
         "X-Reevoo-OfferCount" => 9,
         "X-Reevoo-ConversationCount" => 165,
@@ -33,7 +33,9 @@ describe ReevooMark do
     subject { ReevooMark.new("tmp/cache/", "http://mark.reevoo.com/foo", "PNY", "SKU123") }
 
     describe "#render" do
-      it "returns the http response body"
+      it "returns the http response body" do
+			subject.render.should == "test"
+		end
     end
 
     describe '#review_count' do
@@ -68,7 +70,9 @@ describe ReevooMark do
     subject { ReevooMark.new("tmp/cache/", "http://mark.reevoo.com/foo", "PNY", "SKU123") }
 
     describe "#render" do
-      it "returns the a blank string"
+      it "returns the a blank string" do
+			subject.render.should == ""
+		end
     end
 
     describe '#review_count' do

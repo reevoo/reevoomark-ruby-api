@@ -28,6 +28,10 @@ class ReevooMark
     header('X-Reevoo-BestPrice')
   end
 
+	def render
+		@response.body
+	end
+
   protected
 
   def header(header_name)
