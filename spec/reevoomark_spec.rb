@@ -34,8 +34,8 @@ describe ReevooMark do
 
     describe "#render" do
       it "returns the http response body" do
-			subject.render.should == "test"
-		end
+        subject.render.should == "test"
+      end
     end
 
     describe '#review_count' do
@@ -71,8 +71,8 @@ describe ReevooMark do
 
     describe "#render" do
       it "returns the a blank string" do
-			subject.render.should == ""
-		end
+        subject.render.should == ""
+      end
     end
 
     describe '#review_count' do
