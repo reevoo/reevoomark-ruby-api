@@ -65,7 +65,7 @@ describe ReevooMark do
 
   context "with a ReevooMark instance that failed to load" do
     before do
-      FakeWeb.register_uri(:get, "http://mark.reevoo.com/foo?sku=SKU123&retailer=PNY", :body => "", :status => 500)
+      FakeWeb.register_uri(:get, "http://mark.reevoo.com/foo?sku=SKU123&retailer=PNY", :body => "Some sort of server error", :status => 500)
     end
     subject { ReevooMark.new("tmp/cache/", "http://mark.reevoo.com/foo", "PNY", "SKU123") }
 

@@ -8,7 +8,7 @@ class ReevooMark
     sep = (url =~ /\?/) ? "&" : "?"
     @remote_url = "#{url}#{sep}sku=#{sku}&retailer=#{trkref}";
     uri = URI.parse(@remote_url)
-    @response = Net::HTTP.get_response(uri)
+    @response = Document.new(Net::HTTP.get_response(uri))
   end
 
   def review_count
@@ -29,16 +29,37 @@ class ReevooMark
   end
 
   def render
-    @response.body
+    response_valid? ? @response.body : ""
   end
+
+  alias_method :body, :render
 
   protected
 
+  def response_valid?
+    @response.code == '200'
+  end
+
   def header(header_name)
-    if @response.code == '200'
-      @response[header_name].to_i
-    else
-      nil
+    response_valid? ? @response.header(header_name).to_i : nil
+  end
+
+  class Document
+
+    def initialize(response)
+      @data = response
+    end
+
+    def header(header_name)
+      @data[header_name]
+    end
+
+    def code
+      @data.code
+    end
+
+    def body
+      @data.body
     end
   end
 
