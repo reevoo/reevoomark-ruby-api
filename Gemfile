@@ -4,3 +4,4 @@ gemspec
 gem "rspec"
 gem "fakeweb"
 gem 'guard-rspec'
+gem 'httpclient'

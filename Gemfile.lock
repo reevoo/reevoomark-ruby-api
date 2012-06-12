@@ -14,6 +14,7 @@ GEM
       thor (>= 0.14.6)
     guard-rspec (1.0.0)
       guard (>= 1.1)
+    httpclient (2.2.4)
     listen (0.4.2)
       rb-fchange (~> 0.0.5)
       rb-fsevent (~> 0.9.1)
@@ -39,5 +40,6 @@ PLATFORMS
 DEPENDENCIES
   fakeweb
   guard-rspec
+  httpclient
   reevoomark_ruby_api!
   rspec
