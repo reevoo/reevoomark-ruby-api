@@ -138,12 +138,7 @@ class ReevooMark
       'Referer' => "http://#{Socket::gethostname}"
     }
 
-    begin
-      response = client.get(remote_url, nil, headers, :follow_redirect => true)
-    rescue
-      debugger
-      puts response.status
-    end
+    response = client.get(remote_url, nil, headers)
   end
 
   def get_data
