@@ -2,15 +2,16 @@ require 'spec_helper'
 
 describe "ReevooMark caching" do
   before do
-    File.unlink("tmp/cache/test_cache") if File.exist?("tmp/cache/test_cache")
+    FileUtils.rm Dir.glob('tmp/cache/test_cache/*')
   end
 
   context 'with an empty cache' do
     it 'saves the fetched response to the cache file' do
-      stub_request(:get, "http://mark.reevoo.com/foo?sku=SKU123&retailer=PNY").to_return(:body => "test")
-      ReevooMark.new("tmp/cache/test_cache", "http://mark.reevoo.com/foo", "PNY", "SKU123")
+      stub_request(:get, "http://example.com/foo?sku=SKU123&retailer=PNY").to_return(:body => "test")
+      ReevooMark.new("tmp/cache/test_cache", "http://example.com/foo", "PNY", "SKU123")
 
-      File.open("tmp/cache/test_cache").read.should =~ "test"
+      filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
+      File.open("tmp/cache/test_cache/#{filename}.cache", 'r').read.should match /test/
     end
   end
 
