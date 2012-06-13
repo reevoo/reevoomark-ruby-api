@@ -7,7 +7,7 @@ describe "ReevooMark caching" do
 
   context 'with an empty cache' do
     it 'saves the fetched response to the cache file' do
-      FakeWeb.register_uri(:get, "http://mark.reevoo.com/foo?sku=SKU123&retailer=PNY", :body => "test")
+      stub_request(:get, "http://mark.reevoo.com/foo?sku=SKU123&retailer=PNY").with(:body => "test")
       ReevooMark.new("tmp/cache/test_cache", "http://mark.reevoo.com/foo", "PNY", "SKU123")
 
       File.open("tmp/cache/test_cache").read.should =~ "test"

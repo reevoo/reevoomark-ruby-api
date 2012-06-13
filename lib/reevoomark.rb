@@ -1,6 +1,8 @@
+require 'fileutils'
 require 'uri'
 require 'httpclient'
 require 'md5'
+require 'ruby-debug'
 
 class ReevooMark
   # autoload Response, 'reevoomark/response'
@@ -13,7 +15,7 @@ class ReevooMark
     @remote_url = "#{url}#{sep}sku=#{sku}&retailer=#{trkref}";
     uri = URI.parse(@remote_url)
 
-    # @response = Document.new(Net::HTTP.get_response(uri), Time.now)
+    @response = get_data
   end
 
   def review_count
@@ -34,7 +36,6 @@ class ReevooMark
   end
 
   def render
-    return 'foo'
     response_valid? ? response.body : ""
   end
 
@@ -43,33 +44,62 @@ class ReevooMark
   protected
 
   def response_valid?
-    response.code == '200'
+    response.status_code == 200
   end
 
   def header(header_name)
     response_valid? ? response.header(header_name).to_i : nil
   end
 
-  class Document < Struct.new(:data, :mtime)
+  class Document
+    attr_reader :data, :mtime
 
-    def header(header_name)
-      data[header_name]
+    def initialize(data, mtime)
+      @data = data
+      @mtime = mtime
     end
 
-    def code
-      data.code
+    def header(header_name)
+      headers = {}
+      data.headers.each_pair do |k,v|
+        headers.merge!({k.downcase => v})
+      end
+
+      headers[header_name.downcase]
+    end
+
+    def status_code
+      data.status_code
     end
 
     def body
       data.body
     end
 
-    def is_cachable_response?
-      data.status < 500
+    def is_cacheable_response?
+      return false unless data
+      data.status_code < 500
     end
 
     def has_expired?
-      data.present? ? (max_age < current_age) : true
+      return true unless data
+      max_age < current_age
+    end
+
+    def max_age
+      if header = header('Cache-Control')
+        header.match("max-age=([0-9]+)")
+        matches[1]
+      else
+        0
+      end
+    end
+
+    def current_age
+      mtime_value = mtime ? mtime : 0
+      age_header  = header('Age') ? header('Age') : 0
+      age = Time.now - mtime_value + age_header
+      age.to_i
     end
   end
 
@@ -83,12 +113,8 @@ class ReevooMark
 
   def save_to_cache(data)
     return unless cache_path
-    Dir.mkdir(cache_dir) unless File.exist?(cache_dir)
+    FileUtils.mkdir_p(cache_dir) unless File.exist?(cache_dir)
     File.open(cache_path, 'w') { |f| f.puts data }
-  end
-
-  def load_from_cache
-    File.open(cache_path).read if cache_path && File.exist?(cache_path)
   end
 
   def cache_m_time
@@ -99,32 +125,38 @@ class ReevooMark
     Document.new(load_from_cache, cache_m_time)
   end
 
+  def load_from_cache
+    File.open(cache_path).read if cache_path && File.exist?(cache_path)
+  end
+
   def load_from_remote
     client = HTTPClient.new
     client.connect_timeout = 2
 
     headers = {
-      'User-Agent' => 'ReevooMark PHP Widget/8',
+      'User-Agent' => 'ReevooMark Ruby Widget/8',
       'Referer' => "http://#{Socket::gethostname}"
     }
 
     begin
-      client.get(remote_url, nil, headers, :follow_redirect => true)
+      response = client.get(remote_url, nil, headers, :follow_redirect => true)
     rescue
-      false
+      debugger
+      puts response.status
     end
   end
 
   def get_data
-    doc = new_document_from_cache
-    if doc.has_expired?
+    # doc = new_document_from_cache
+
+    # if doc.has_expired?
       remote_doc = Document.new(load_from_remote, Time.now)
 
-      if doc.is_cacheable_response? or remote_doc.is_cacheable_response?
+      if remote_doc.is_cacheable_response?
         save_to_cache(remote_doc.data)
         doc = remote_doc
       end
-    end
+    # end
 
     doc
   end

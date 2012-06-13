@@ -6,29 +6,33 @@ describe ReevooMark do
     it "requires 4 arguments" do
       lambda { ReevooMark.new }.should raise_exception ArgumentError
     end
+
     describe "the http request it makes" do
       it "GETs the url with the trkref and sku" do
-        FakeWeb.register_uri(:get, "http://mark.reevoo.com/foo?sku=SKU123&retailer=PNY", :body => "")
+        stub_request(:get, "http://mark.reevoo.com/foo?sku=SKU123&retailer=PNY").with(:body => "")
         ReevooMark.new("tmp/cache/", "http://mark.reevoo.com/foo", "PNY", "SKU123")
-        FakeWeb.last_request.path.should == "/foo?sku=SKU123&retailer=PNY"
+        WebMock.should have_requested(:get, "http://mark.reevoo.com/foo?sku=SKU123&retailer=PNY")
       end
 
       it "copes fine with urls that already have query strings" do
-        FakeWeb.register_uri(:get, "http://mark.reevoo.com/foo?bar=baz&sku=SKU123&retailer=PNY", :body => "")
+        stub_request(:get, "http://mark.reevoo.com/foo?bar=baz&sku=SKU123&retailer=PNY").with(:body => "")
         ReevooMark.new("tmp/cache/", "http://mark.reevoo.com/foo?bar=baz", "PNY", "SKU123")
-        FakeWeb.last_request.path.should == "/foo?bar=baz&sku=SKU123&retailer=PNY"
+        WebMock.should have_requested(:get, "http://mark.reevoo.com/foo?bar=baz&sku=SKU123&retailer=PNY")
       end
     end
   end
 
   context "with a new ReevooMark instance" do
     before do
-      FakeWeb.register_uri(:get, "http://mark.reevoo.com/foo?sku=SKU123&retailer=PNY", :body => "test",
-        "X-Reevoo-ReviewCount" => 12,
-        "X-Reevoo-OfferCount" => 9,
-        "X-Reevoo-ConversationCount" => 165,
-        "X-Reevoo-BestPrice" => 19986
-        )
+      stub_request(:get, "http://mark.reevoo.com/foo?sku=SKU123&retailer=PNY").to_return(
+        :headers => {
+          "X-Reevoo-ReviewCount" => 12,
+          "X-Reevoo-OfferCount" => 9,
+          "X-Reevoo-ConversationCount" => 165,
+          "X-Reevoo-BestPrice" => 19986
+        },
+        :body => "test"
+      )
     end
     subject { ReevooMark.new("tmp/cache/", "http://mark.reevoo.com/foo", "PNY", "SKU123") }
 
@@ -64,13 +68,14 @@ describe ReevooMark do
   end
 
   context "with a ReevooMark instance that failed to load" do
+
     before do
-      FakeWeb.register_uri(:get, "http://mark.reevoo.com/foo?sku=SKU123&retailer=PNY", :body => "Some sort of server error", :status => 500)
+      stub_request(:get, "http://mark.reevoo.com/foo?sku=SKU123&retailer=PNY").to_return(:body => "Some sort of server error", :status => 500)
     end
     subject { ReevooMark.new("tmp/cache/", "http://mark.reevoo.com/foo", "PNY", "SKU123") }
 
     describe "#render" do
-      it "returns the a blank string" do
+      it "returns a blank string" do
         subject.render.should == ""
       end
     end
@@ -98,6 +103,5 @@ describe ReevooMark do
         subject.best_price.should be_nil
       end
     end
-
   end
 end

@@ -3,10 +3,11 @@ $LOAD_PATH << File.join(File.dirname(__FILE__))
 
 require 'rubygems'
 require 'rspec'
-require 'fakeweb'
+require 'webmock'
+require 'webmock/rspec'
 require 'lib/reevoomark'
 
-FakeWeb.allow_net_connect = false
+WebMock.disable_net_connect!
 
 # Dir["spec/support/**/*.rb"].each { |f| require File.expand_path(f) }
 
