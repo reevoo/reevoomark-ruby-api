@@ -81,25 +81,25 @@ describe ReevooMark do
     end
 
     describe '#review_count' do
-      it 'returns 0' do
+      it 'returns nil' do
         subject.review_count.should be_nil
       end
     end
 
     describe '#offer_count' do
-      it 'returns 0' do
+      it 'returns nil' do
         subject.offer_count.should be_nil
       end
     end
 
     describe '#conversation_count' do
-      it 'returns 0' do
+      it 'returns nil' do
         subject.conversation_count.should be_nil
       end
     end
 
     describe '#best_price' do
-      it 'returns 0' do
+      it 'returns nil' do
         subject.best_price.should be_nil
       end
     end
