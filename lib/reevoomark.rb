@@ -18,62 +18,83 @@ class ReevooMark
     @response = get_data
   end
 
+
+
   def review_count
-    header('X-Reevoo-ReviewCount')
+    response.header('X-Reevoo-ReviewCount').to_i if response.is_valid?
   end
 
-
   def offer_count
-    header('X-Reevoo-OfferCount')
+    response.header('X-Reevoo-OfferCount').to_i if response.is_valid?
   end
 
   def conversation_count
-    header('X-Reevoo-ConversationCount')
+    response.header('X-Reevoo-ConversationCount').to_i if response.is_valid?
   end
 
   def best_price
-    header('X-Reevoo-BestPrice')
+    response.header('X-Reevoo-BestPrice').to_i if response.is_valid?
   end
 
   def render
-    response_valid? ? response.body : ""
+    response.is_valid? ? response.body : ""
   end
 
   alias_method :body, :render
 
   protected
 
-  def response_valid?
-    response.status_code == 200
-  end
-
-  def header(header_name)
-    response_valid? ? response.header(header_name).to_i : nil
-  end
-
   class Document
     attr_reader :data, :mtime
 
     def initialize(data, mtime)
+      @head, @body = data.split("\n\n") if data.kind_of? String
       @data = data
+
       @mtime = mtime
     end
 
     def header(header_name)
-      headers = {}
-      data.headers.each_pair do |k,v|
-        headers.merge!({k.downcase => v})
-      end
+      # headers = {}
+      # data.headers.each_pair do |k,v|
+      #   headers.merge!({k.downcase => v})
+      # end
+      headers[header_name.downcase] if is_valid?
+    end
 
-      headers[header_name.downcase]
+    def headers
+      return @headers if defined?(@headers)
+      if data.respond_to?(:headers)
+        @headers = {}
+        data.headers.each_pair do |k,v|
+          @headers.merge!({k.downcase => v})
+        end
+      else
+        @head = @head.split("\n")
+        @head.shift
+        @headers = Hash[*@head.map{|line| line.split(": ").map(&:downcase)}.flatten]
+      end
+      @headers
     end
 
     def status_code
-      data.status_code
+      if data.respond_to? :status_code
+        data.status_code
+      else
+        headers["status"].to_i
+      end
+    end
+
+    def is_valid?
+      status_code == 200
     end
 
     def body
-      data.body
+      if data.respond_to? :body
+        data.body
+      else
+        @body
+      end
     end
 
     def is_cacheable_response?
@@ -142,9 +163,9 @@ class ReevooMark
   end
 
   def get_data
-    # doc = new_document_from_cache
+    doc = new_document_from_cache
 
-    # if doc.has_expired?
+    if doc.has_expired?
       remote_doc = Document.new(load_from_remote, Time.now)
 
       if remote_doc.is_cacheable_response?
@@ -153,7 +174,7 @@ class ReevooMark
       else
         doc = remote_doc
       end
-    # end
+    end
 
     doc
   end
