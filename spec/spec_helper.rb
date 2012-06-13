@@ -7,8 +7,6 @@ require 'webmock'
 require 'webmock/rspec'
 require 'lib/reevoomark'
 
-WebMock.disable_net_connect!
-
 # Dir["spec/support/**/*.rb"].each { |f| require File.expand_path(f) }
 
 # RSpec.configure do |config|
