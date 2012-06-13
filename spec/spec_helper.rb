@@ -9,12 +9,8 @@ require 'lib/reevoomark'
 
 # Dir["spec/support/**/*.rb"].each { |f| require File.expand_path(f) }
 
-# RSpec.configure do |config|
-#   config.mock_framework = :mocha
-#
-#   config.include DeclarationMatchers
-#
-#   config.after do
-#     FactoryGirl.reload
-#   end
-# end
+RSpec.configure do |config|
+  config.before do
+    FileUtils.rm Dir.glob('tmp/cache/*')
+  end
+end
