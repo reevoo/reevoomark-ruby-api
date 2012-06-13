@@ -114,7 +114,7 @@ class ReevooMark
   def save_to_cache(data)
     return unless cache_path
     FileUtils.mkdir_p(cache_dir) unless File.exist?(cache_dir)
-    File.open(cache_path, 'w') { |f| f.puts data }
+    File.open(cache_path, 'w') { |f| f.puts data.dump }
   end
 
   def cache_m_time
@@ -154,6 +154,8 @@ class ReevooMark
 
       if remote_doc.is_cacheable_response?
         save_to_cache(remote_doc.data)
+        doc = remote_doc
+      else
         doc = remote_doc
       end
     # end
