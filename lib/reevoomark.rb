@@ -18,8 +18,6 @@ class ReevooMark
     @response = get_data
   end
 
-
-
   def review_count
     response.header('X-Reevoo-ReviewCount').to_i if response.is_valid?
   end
@@ -108,19 +106,15 @@ class ReevooMark
     end
 
     def max_age
-      if header = header('Cache-Control')
-        header.match("max-age=([0-9]+)")
-        matches[1]
+      if cache_header = header('Cache-Control')
+        cache_header.match("max-age=([0-9]+)")[1].to_i
       else
         0
       end
     end
 
     def current_age
-      mtime_value = mtime ? mtime : 0
-      age_header  = header('Age') ? header('Age') : 0
-      age = Time.now - mtime_value + age_header
-      age.to_i
+      Time.now.to_i - mtime.to_i + header('Age').to_i
     end
   end
 
