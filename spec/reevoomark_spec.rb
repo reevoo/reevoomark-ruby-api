@@ -24,7 +24,7 @@ describe ReevooMark do
 
   context "with a new ReevooMark instance" do
     before do
-      stub_request(:get, "http://example.com/foo?sku=SKU123&retailer=PNY").to_return(
+      stub_request(:get, /.*example.*/).to_return(
         :headers => {
           "X-Reevoo-ReviewCount" => 12,
           "X-Reevoo-OfferCount" => 9,
@@ -62,7 +62,7 @@ describe ReevooMark do
   context "with a ReevooMark instance that failed to load due to server error" do
 
     before do
-      stub_request(:get, "http://example.com/foo?sku=SKU123&retailer=PNY").to_return(:body => "Some sort of server error", :status => 500)
+      stub_request(:get, /.*example.*/).to_return(:body => "Some sort of server error", :status => 500)
     end
     subject { ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123") }
 

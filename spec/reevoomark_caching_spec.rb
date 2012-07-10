@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe "ReevooMark caching" do
   before do
-    stub_request(:get, "http://example.com/foo?sku=SKU123&retailer=PNY").to_return(:body => "test")
+    stub_request(:get, /.*example.*/).to_return(:body => "test")
   end
 
   context 'with an empty cache' do
@@ -13,14 +13,14 @@ describe "ReevooMark caching" do
       File.open("tmp/cache/#{filename}.cache", 'r').read.should match /test/
     end
     it "saves a 404 response to the cache file" do
-      stub_request(:get, "http://example.com/foo?sku=SKU123&retailer=PNY").to_return(:body => "No content found", :status => 404)
+      stub_request(:get, /.*example.*/).to_return(:body => "No content found", :status => 404)
       ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
 
       filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
       File.open("tmp/cache/#{filename}.cache", 'r').read.should match /No content found/
     end
     it "saves a 500 response to the cache file" do
-      stub_request(:get, "http://example.com/foo?sku=SKU123&retailer=PNY").to_return(:body => "My face is on fire", :status => 500)
+      stub_request(:get, /.*example.*/).to_return(:body => "My face is on fire", :status => 500)
       ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
 
       filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
@@ -75,7 +75,7 @@ describe "ReevooMark caching" do
     end
     context "and an erroring server" do
       before do
-        stub_request(:get, "http://example.com/foo?sku=SKU123&retailer=PNY").to_return(:body => "My face is on fire", :status => 500)
+        stub_request(:get, /.*example.*/).to_return(:body => "My face is on fire", :status => 500)
       end
 
       it "returns the cached response body" do
