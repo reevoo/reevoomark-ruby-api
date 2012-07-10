@@ -42,28 +42,20 @@ describe ReevooMark do
       end
     end
 
-    describe '#review_count' do
-      it 'returns the value in X-Reevoo-ReviewCount header' do
-        subject.review_count.should == 12
-      end
+    it 'returns the value in X-Reevoo-ReviewCount header for #review_count' do
+      subject.review_count.should == 12
     end
 
-    describe '#offer_count' do
-      it 'returns the value in X-Reevoo-OfferCount header' do
-        subject.offer_count.should == 9
-      end
+    it 'returns the value in X-Reevoo-OfferCount header for #offer_count' do
+      subject.offer_count.should == 9
     end
 
-    describe '#conversation_count' do
-      it 'returns the value in X-Reevoo-ConversationCount header' do
-        subject.conversation_count.should == 165
-      end
+    it 'returns the value in X-Reevoo-ConversationCount header for #conversation_count' do
+      subject.conversation_count.should == 165
     end
 
-    describe '#best_price' do
-      it 'returns the value in X-Reevoo-BestPrice header' do
-        subject.best_price.should == 19986
-      end
+    it 'returns the value in X-Reevoo-BestPrice header for #best_price' do
+      subject.best_price.should == 19986
     end
   end
 
@@ -80,28 +72,20 @@ describe ReevooMark do
       end
     end
 
-    describe '#review_count' do
-      it 'returns nil' do
-        subject.review_count.should be_nil
-      end
+    it 'returns nil for #review_count' do
+      subject.review_count.should be_nil
     end
 
-    describe '#offer_count' do
-      it 'returns nil' do
-        subject.offer_count.should be_nil
-      end
+    it 'returns nil for #offer_count' do
+      subject.offer_count.should be_nil
     end
 
-    describe '#conversation_count' do
-      it 'returns nil' do
-        subject.conversation_count.should be_nil
-      end
+    it 'returns nil for #conversation_count' do
+      subject.conversation_count.should be_nil
     end
 
-    describe '#best_price' do
-      it 'returns nil' do
-        subject.best_price.should be_nil
-      end
+    it 'returns nil for #best_price' do
+      subject.best_price.should be_nil
     end
   end
 end
