@@ -1,8 +1,8 @@
 source :rubygems
 gemspec
 
-gem "rspec"
-gem "webmock"
-gem 'guard-rspec'
-gem 'httpclient'
-gem 'ruby-debug'
+group :development do
+  gem "rspec"
+  gem "webmock"
+  gem 'guard-rspec'
+end

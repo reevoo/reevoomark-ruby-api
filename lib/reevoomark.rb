@@ -2,7 +2,6 @@ require 'fileutils'
 require 'uri'
 require 'httpclient'
 require 'md5'
-require 'ruby-debug'
 
 class ReevooMark
   # autoload Response, 'reevoomark/response'
