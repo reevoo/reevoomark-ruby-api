@@ -19,6 +19,17 @@ describe ReevooMark do
         ReevooMark.new("tmp/cache/", "http://example.com/foo?bar=baz", "PNY", "SKU123")
         WebMock.should have_requested(:get, "http://example.com/foo?bar=baz&sku=SKU123&retailer=PNY")
       end
+
+      it "passes the correct headers in the request" do
+        stub_request(:get, /.*example.*/).to_return(:body => "")
+        expected_headers_hash = {
+          'User-Agent' => 'ReevooMark Ruby Widget/8',
+          'Referer' => "http://#{Socket::gethostname}"
+        }
+
+        ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
+        WebMock.should have_requested(:get, /.*example.*/).with(:headers => expected_headers_hash)
+      end
     end
   end
 
