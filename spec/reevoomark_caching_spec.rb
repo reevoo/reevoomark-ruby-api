@@ -6,11 +6,25 @@ describe "ReevooMark caching" do
   end
 
   context 'with an empty cache' do
-    it 'saves the fetched response to the cache file' do
+    it 'saves a valid fetched response to the cache file' do
       ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
 
       filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
       File.open("tmp/cache/#{filename}.cache", 'r').read.should match /test/
+    end
+    it "saves a 404 response to the cache file" do
+      stub_request(:get, "http://example.com/foo?sku=SKU123&retailer=PNY").to_return(:body => "No content found", :status => 404)
+      ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
+
+      filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
+      File.open("tmp/cache/#{filename}.cache", 'r').read.should match /No content found/
+    end
+    it "saves a 500 response to the cache file" do
+      stub_request(:get, "http://example.com/foo?sku=SKU123&retailer=PNY").to_return(:body => "My face is on fire", :status => 500)
+      ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
+
+      filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
+      File.open("tmp/cache/#{filename}.cache", 'r').read.should match /My face is on fire/
     end
   end
 
@@ -49,13 +63,29 @@ describe "ReevooMark caching" do
       subject
       WebMock.should have_requested(:get, "http://example.com/foo?sku=SKU123&retailer=PNY")
     end
-    it "returns the response body" do
-      subject.render.should == "test"
+    context "and a functioning server" do
+      it "returns the response body" do
+        subject.render.should == "test"
+      end
+      it 'saves the fetched response to the cache file' do
+        subject
+        filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
+        File.open("tmp/cache/#{filename}.cache", 'r').read.should match /test/
+      end
     end
-    it 'saves the fetched response to the cache file' do
-      subject
-      filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
-      File.open("tmp/cache/#{filename}.cache", 'r').read.should match /test/
+    context "and an erroring server" do
+      before do
+        stub_request(:get, "http://example.com/foo?sku=SKU123&retailer=PNY").to_return(:body => "My face is on fire", :status => 500)
+      end
+
+      it "returns the cached response body" do
+        subject.render.should == "I'm a cache record."
+      end
+      it 'does not save the fetched response to the cache file' do
+        subject
+        filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
+        File.open("tmp/cache/#{filename}.cache", 'r').read.should match /I'm a cache record/
+      end
     end
   end
 

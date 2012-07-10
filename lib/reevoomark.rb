@@ -157,19 +157,16 @@ class ReevooMark
   end
 
   def get_data
-    doc = new_document_from_cache
+    cached_doc = new_document_from_cache
+    return cached_doc unless cached_doc.has_expired?
 
-    if doc.has_expired?
-      remote_doc = Document.new(load_from_remote, Time.now)
-
-      if remote_doc.is_cacheable_response?
-        save_to_cache(remote_doc.data)
-        doc = remote_doc
-      else
-        doc = remote_doc
-      end
+    remote_doc = Document.new(load_from_remote, Time.now)
+    if remote_doc.is_cacheable_response? || cached_doc.data.nil?
+      save_to_cache(remote_doc.data)
+      remote_doc
+    else
+      cached_doc
     end
 
-    doc
   end
 end

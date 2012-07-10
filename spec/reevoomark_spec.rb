@@ -59,7 +59,7 @@ describe ReevooMark do
     end
   end
 
-  context "with a ReevooMark instance that failed to load" do
+  context "with a ReevooMark instance that failed to load due to server error" do
 
     before do
       stub_request(:get, "http://example.com/foo?sku=SKU123&retailer=PNY").to_return(:body => "Some sort of server error", :status => 500)
