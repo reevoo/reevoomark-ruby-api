@@ -1,7 +1,7 @@
 require 'fileutils'
 require 'uri'
 require 'httpclient'
-require 'md5'
+require 'digest/md5'
 
 class ReevooMark
   # autoload Response, 'reevoomark/response'
