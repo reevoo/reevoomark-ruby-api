@@ -10,8 +10,9 @@ describe "ReevooMark caching" do
       ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
 
       filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
-      File.open("tmp/cache/#{filename}.cache", 'r').read.should match /test/
+      File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/test/)
     end
+
     it "saves a 404 response to the cache file" do
       stub_request(:get, /.*example.*/).to_return(:body => "No content found", :status => 404)
       ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
@@ -19,6 +20,7 @@ describe "ReevooMark caching" do
       filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
       File.open("tmp/cache/#{filename}.cache", 'r').read.should match /No content found/
     end
+
     it "saves a 500 response to the cache file" do
       stub_request(:get, /.*example.*/).to_return(:body => "My face is on fire", :status => 500)
       ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
@@ -35,12 +37,14 @@ describe "ReevooMark caching" do
         file << EXAMPLE_CACHE_FILE
       end
     end
+
     subject {ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")}
 
     it "does NOT make an http request" do
       subject
       WebMock.should_not have_requested(:get, "http://example.com/foo?sku=SKU123&retailer=PNY")
     end
+
     it "returns the cached response body" do
       subject.review_count.should == 1
       subject.offer_count.should == 2
@@ -58,11 +62,14 @@ describe "ReevooMark caching" do
         File.stub(:mtime).and_return(Time.now - 60*60)
       end
     end
+
     subject {ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")}
+
     it "makes an http request" do
       subject
       WebMock.should have_requested(:get, "http://example.com/foo?sku=SKU123&retailer=PNY")
     end
+
     context "and a functioning server" do
       it "returns the response body" do
         subject.render.should == "test"
@@ -70,10 +77,12 @@ describe "ReevooMark caching" do
       it 'saves the fetched response to the cache file' do
         subject
         filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
-        File.open("tmp/cache/#{filename}.cache", 'r').read.should match /test/
+        File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/test/)
       end
     end
+
     context "and an erroring server" do
+
       before do
         stub_request(:get, /.*example.*/).to_return(:body => "My face is on fire", :status => 500)
       end
@@ -81,12 +90,14 @@ describe "ReevooMark caching" do
       it "returns the cached response body" do
         subject.render.should == "I'm a cache record."
       end
+
       it 'does not save the fetched response to the cache file' do
         subject
         filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
-        File.open("tmp/cache/#{filename}.cache", 'r').read.should match /I'm a cache record/
+        File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/I'm a cache record/)
       end
     end
+
   end
 
 end

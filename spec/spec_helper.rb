@@ -1,12 +1,11 @@
-$LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'lib')
-$LOAD_PATH << File.join(File.dirname(__FILE__))
+$LOAD_PATH << File.expand_path('../../lib', __FILE__)
 
 require 'rubygems'
 require 'pry'
 require 'rspec'
 require 'webmock'
 require 'webmock/rspec'
-require 'lib/reevoomark'
+require 'reevoomark'
 
 # Dir["spec/support/**/*.rb"].each { |f| require File.expand_path(f) }
 
