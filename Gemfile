@@ -6,4 +6,5 @@ group :development do
   gem "webmock"
   gem 'guard-rspec'
   gem 'rake'
+  gem 'pry'
 end

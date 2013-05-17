@@ -2,6 +2,7 @@ $LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'lib')
 $LOAD_PATH << File.join(File.dirname(__FILE__))
 
 require 'rubygems'
+require 'pry'
 require 'rspec'
 require 'webmock'
 require 'webmock/rspec'
