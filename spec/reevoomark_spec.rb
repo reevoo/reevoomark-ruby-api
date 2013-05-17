@@ -84,19 +84,19 @@ describe ReevooMark do
     end
 
     it 'returns nil for #review_count' do
-      subject.review_count.should be_nil
+      subject.review_count.should be_zero
     end
 
     it 'returns nil for #offer_count' do
-      subject.offer_count.should be_nil
+      subject.offer_count.should be_zero
     end
 
     it 'returns nil for #conversation_count' do
-      subject.conversation_count.should be_nil
+      subject.conversation_count.should be_zero
     end
 
     it 'returns nil for #best_price' do
-      subject.best_price.should be_nil
+      subject.best_price.should be_zero
     end
   end
 end
