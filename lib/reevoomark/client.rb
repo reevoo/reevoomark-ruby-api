@@ -1,36 +1,30 @@
 class ReevooMark::Client
-  attr_reader :remote_url, :document
+  DEFAULT_URL = 'http://mark.reevoo.com/reevoomark/embeddable_reviews.html'
 
-  def initialize(cache_dir, url, trkref, sku, options = {})
+  def initialize(cache, url = DEFAULT_URL, options = {})
     @timeout = options[:timeout] || 1
-    @cache = ReevooMark::Cache.new(cache_dir)
-    sep = (url =~ /\?/) ? "&" : "?"
-    @remote_url = "#{url}#{sep}sku=#{sku}&retailer=#{trkref}"
-    @document = fetch_document
+    @cache = cache
+    @url = url
+    @http_client = HTTPClient.new
+    @http_client.connect_timeout = 1
   end
 
-  def render
-    document.body if document
-  end
+  def fetch(trkref, sku)
+    sep = (@url =~ /\?/) ? "&" : "?"
+    remote_url = "#{@url}#{sep}sku=#{sku}&retailer=#{trkref}"
 
-  alias_method :body, :render
+    document = ReevooMark::ErrorDocument.new
 
-  # Delegate the metadata accessors to the document object
+    begin
+      document = @cache.fetch(remote_url){
+        ReevooMark::Document.new(load_from_remote(remote_url), Time.now)
+      }
+    rescue FetchError
+      # Fetch, or fall back to the error document.
+      document = @cache.fetch_expired(remote_url) || document
+    end
 
-  def review_count
-    document.review_count if document
-  end
-
-  def offer_count
-    document.offer_count if document
-  end
-
-  def conversation_count
-    document.conversation_count if document
-  end
-
-  def best_price
-    document.best_price if document
+    return document
   end
 
 protected
@@ -42,10 +36,7 @@ protected
 
   FetchError = Class.new(RuntimeError)
 
-  def load_from_remote
-    client = HTTPClient.new
-    client.connect_timeout = 1
-
+  def load_from_remote(remote_url)
     headers = {
       'User-Agent' => 'ReevooMark Ruby Widget/8',
       'Referer' => "http://#{Socket::gethostname}"
@@ -55,7 +46,7 @@ protected
 
     response = nil
     Timeout.timeout @timeout do
-      response = client.get(remote_url, nil, headers)
+      response = @http_client.get(remote_url, nil, headers)
     end
 
     raise FetchError, "Server side error" if response.code >= 500
@@ -72,18 +63,4 @@ protected
     raise FetchError, "Network error"
   end
 
-  def fetch_document
-    document = ReevooMark::ErrorDocument.new
-
-    begin
-      document = @cache.fetch(remote_url){
-        ReevooMark::Document.new(load_from_remote, Time.now)
-      }
-    rescue FetchError
-      # Fetch, or fall back to the error document.
-      document = @cache.fetch_expired(remote_url) || document
-    end
-
-    return document
-  end
 end

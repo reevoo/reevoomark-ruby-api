@@ -79,6 +79,8 @@ class ReevooMark::Document
     end
   end
 
+  alias render body
+
   def is_cacheable_response?
     return false unless data
     data.status_code < 500
