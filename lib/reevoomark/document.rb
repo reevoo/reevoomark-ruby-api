@@ -76,10 +76,6 @@ class ReevooMark::Document
 
   alias render body
 
-  def is_cacheable_response?
-    status_code < 500
-  end
-
   def has_expired?
     max_age < current_age
   end
