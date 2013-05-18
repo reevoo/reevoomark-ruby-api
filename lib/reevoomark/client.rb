@@ -17,7 +17,7 @@ class ReevooMark::Client
 
     document = @cache.fetch(remote_url){
       begin
-        document = ReevooMark::Document.from_document(load_from_remote(remote_url))
+        document = ReevooMark::Document.from_response(load_from_remote(remote_url))
         if document.status_code >= 500
           @cache.fetch_expired(remote_url, :revalidate_for => 300) || document
         else

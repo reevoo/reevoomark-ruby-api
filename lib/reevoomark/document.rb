@@ -30,8 +30,9 @@ class ReevooMark::Document
     end
   end
 
-  def self.from_document(document)
-    headers = HeaderSet.new(document.headers)
+  # Factory method for building a document from a HTTP response.
+  def self.from_response(response)
+    headers = HeaderSet.new(response.headers)
 
     counts = HEADER_MAPPING.inject(Hash.new(0)){ |acc, (name, header)|
       acc.merge(name => headers[header].to_i)
@@ -49,8 +50,8 @@ class ReevooMark::Document
       Time.now,
       max_age,
       age,
-      document.status_code,
-      document.body,
+      response.status_code,
+      response.body,
       counts
     )
   end
