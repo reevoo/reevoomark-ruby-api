@@ -2,7 +2,9 @@
 
 ##Description
 
-The reevoomark-ruby-api is a Ruby gem for ReevooMark and Reevoo Essentials customers who want to quickly and easily integrate Reevoo content in to their sites server-side.
+The reevoomark-ruby-api is a Ruby gem for ReevooMark and Reevoo Essentials
+customers who want to quickly and easily integrate Reevoo content in to their
+sites server-side.
 
 ##Other Languages
 Tag libraries are also available for [PHP](https://github.com/reevoo/reevoomark-php-api) [.NET](https://github.com/reevoo/reevoomark-dotnet-api) and [Java](https://github.com/reevoo/reevoomark-java-api).
@@ -11,10 +13,12 @@ Tag libraries are also available for [PHP](https://github.com/reevoo/reevoomark-
 
 * Server-side inclusion of Reevoo content.
 * Included CSS for display of Reevoo content.
-* Server-side caching of content that respects the cache control rules set by Reevoo.
+* Server-side caching of content that respects the cache control rules set by
+  Reevoo.
 
 ##Support
-For ReevooMark and Reevoo Essentials customers, support can be obtained by emailing <operations@reevoo.com>.
+For ReevooMark and Reevoo Essentials customers, support can be obtained by
+emailing <operations@reevoo.com>.
 
 There is also a [bug tracker](https://github.com/reevoo/reevoomark-ruby-api/issues) available.
 
@@ -34,7 +38,8 @@ gem install reevoomark-ruby-api
 
 ##Implementation
 
-In your view, include the relevant CSS and your customer-specific Reevoo JavaScript:
+In your view, include the relevant CSS and your customer-specific Reevoo
+JavaScript:
 
 ``` html
 <link rel="stylesheet" href="http://mark.reevoo.com/stylesheets/reevoomark/embedded_reviews.css" type="text/css" />
@@ -49,28 +54,37 @@ In your server-side code, require the gem:
 require 'reevoomark'
 ```
 
-Initialise the client using your customer TRKREF and the product sku. Make sure you replace `<reevoo_cache>` with the path of a directory that can be used to cache review content:
+Somewhere in you application config, build a client. This should be shared for
+all requests. Here we're doing that with a global variable, but you can use any
+other technique that avoids defining one for every request.
 
 ``` ruby
-@reevoo_mark = ReevooMark.new("<reevoo_cache>", "http://mark.reevoo.com/reevoomark/embeddable_reviews.html", "<TRKREF>", "<SKU>")
+$reevoomark_client = ReevooMark.create_client(
+  Rails.root.join("tmp/reevoo_cache"),
+  "http://mark.reevoo.com/reevoomark/embeddable_reviews.html"
+)
 ```
 
-It is also possible to specify locale and the number of reviews you'd like in the URI:
-
-```ruby
-@reevoo_mark = ReevooMark.new("<reevoo_cache>", "http://mark.reevoo.com/reevoomark/fr-FR/10/embeddable_reviews.html", "<TRKREF>", "<SKU>")
-```
-
-Render your embedded review content inside your view.
-```ruby
-<%= @reevoo_mark.render %>
-```
-
-By default Reevoo will display helpful content to the user when there are no reviews available. If you'd like to handle this yourself, you can check the review count before rendering:
+In your controller (assuming @entry.sku is your product SKU, and your assigned
+TRKREF is ABC123):
 
 ``` ruby
-<% if @reevoo_mark.review_count.to_i > 0 %>
-  <%= @reevoo_mark.render %>
+@reevoo_reviews = $reevoomark_client.fetch('ABC123', @entry.sku)
+```
+
+In your view:
+
+``` ruby
+<%= @reevoo_reviews.render %>
+```
+
+By default Reevoo will display helpful content to the user when there are no
+reviews available. If you'd like to handle this yourself, you can check the
+review count before rendering:
+
+``` ruby
+<% if @reevoo_reviews.review_count > 0 %>
+  <%= @reevoo_reviews.render %>
 <% else %>
   <h1>No reviews here.</h1>
 <% end %>
@@ -78,7 +92,9 @@ By default Reevoo will display helpful content to the user when there are no rev
 
 ## Tracking
 
-If you display the reviews in a tabbed display, or otherwise require visitors to your site to click an element before seeing the embedded reviews, add the following onclick attribute to track the clickthroughs:
+If you display the reviews in a tabbed display, or otherwise require visitors to
+your site to click an element before seeing the embedded reviews, add the
+following onclick attribute to track the clickthroughs:
 
 ``` html
   onclick="ReevooMark.track_click_through(‘<SKU>’)”
@@ -86,13 +102,16 @@ If you display the reviews in a tabbed display, or otherwise require visitors to
 
 ## Overall rating
 
-The overall rating section at the top of inline reviews contains an overall score, a summary and the score breakdowns. Your container must be at least 650px for the score breakdowns to be shown. The absolute minimum width for inline reviews is 350px.
+The overall rating section at the top of inline reviews contains an overall
+score, a summary and the score breakdowns. Your container must be at least 650px
+for the score breakdowns to be shown. The absolute minimum width for inline
+reviews is 350px.
 
 ##License
 
-This software is released under the MIT license.  Only certified ReevooMark partners
-are licensed to display Reevoo content on their sites.  Contact <sales@reevoo.com> for
-more information.
+This software is released under the MIT license.  Only certified ReevooMark
+partners are licensed to display Reevoo content on their sites.  Contact
+<sales@reevoo.com> for more information.
 
 (The MIT License)
 
