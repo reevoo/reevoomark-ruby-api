@@ -47,25 +47,14 @@ describe ReevooMark do
     end
     subject { ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123") }
 
-    describe "#render" do
-      it "returns the http response body" do
-        subject.render.should == "test"
-      end
+    it "parses the body" do
+      subject.render.should == "test"
     end
 
-    it 'returns the value in X-Reevoo-ReviewCount header for #review_count' do
+    it 'parses the headers' do
       subject.review_count.should == 12
-    end
-
-    it 'returns the value in X-Reevoo-OfferCount header for #offer_count' do
       subject.offer_count.should == 9
-    end
-
-    it 'returns the value in X-Reevoo-ConversationCount header for #conversation_count' do
       subject.conversation_count.should == 165
-    end
-
-    it 'returns the value in X-Reevoo-BestPrice header for #best_price' do
       subject.best_price.should == 19986
     end
   end
@@ -83,19 +72,10 @@ describe ReevooMark do
       end
     end
 
-    it 'returns nil for #review_count' do
+    it 'returns zero for the counts' do
       subject.review_count.should be_zero
-    end
-
-    it 'returns nil for #offer_count' do
       subject.offer_count.should be_zero
-    end
-
-    it 'returns nil for #conversation_count' do
       subject.conversation_count.should be_zero
-    end
-
-    it 'returns nil for #best_price' do
       subject.best_price.should be_zero
     end
   end

@@ -19,13 +19,19 @@ class ReevooMark::Cache::Entry
 
   def document
     raise "Loading from cache, where no cache exists is bad." unless exists?
-    @document ||= ReevooMark::Document.new(read, m_time)
+    @document ||= ReevooMark::Document.load(read)
   end
 
   def document= doc
     @document = nil # Flush the memoized value
     write doc.dump
     doc
+  end
+
+  def revalidate_for(max_age)
+    if exists?
+      self.document = document.revalidated_for(max_age)
+    end
   end
 
 protected

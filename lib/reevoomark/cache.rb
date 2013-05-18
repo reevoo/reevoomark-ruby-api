@@ -6,9 +6,12 @@ class ReevooMark::Cache
   end
 
   # Fetch the cache entry, don't worry if it's expired.
-  def fetch_expired(remote_url)
+  def fetch_expired(remote_url, options = {})
     entry = entry_for(remote_url)
-    entry.document if entry.exists?
+    if entry.exists?
+      entry.revalidate_for(options[:revalidate_for])
+      entry.document
+    end
   end
 
   # Fetch an unexpired cached document, or store the result of the block.

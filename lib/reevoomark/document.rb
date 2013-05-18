@@ -1,66 +1,77 @@
 class ReevooMark::Document
-  attr_reader :data, :mtime
+  attr_reader :time, :status_code, :age, :max_age
 
-  def initialize(data, mtime)
-    @head, @body = data.split("\n\n") if data.kind_of? String
-    @data = data
+  HEADER_MAPPING = {
+    :review_count => 'X-Reevoo-ReviewCount',
+    :offer_count => 'X-Reevoo-OfferCount',
+    :conversation_count => 'X-Reevoo-ConversationCount',
+    :best_price => 'X-Reevoo-BestPrice'
+  }
 
-    @mtime = mtime
+  HEADER_MAPPING.each do |name, header|
+    define_method name do
+      instance_variable_get("@#{name}").to_i
+    end
+  end
+
+  class HeaderSet < Hash
+    def initialize(hash)
+      hash.each do |k,v|
+        self[k] = v
+      end
+    end
+
+    def [] k
+      super(k.downcase)
+    end
+
+    def []= k,v
+      super(k.downcase, v)
+    end
+  end
+
+  def self.from_document(document)
+    headers = HeaderSet.new(document.headers)
+
+    counts = HEADER_MAPPING.inject(Hash.new(0)){ |acc, (name, header)|
+      acc.merge(name => headers[header])
+    }
+
+    if cache_header = headers['Cache-Control']
+      max_age = cache_header.match("max-age=([0-9]+)")[1].to_i
+    else
+      max_age = 300
+    end
+
+    age = headers['Age'].to_i
+
+    new(
+      Time.now,
+      max_age,
+      age,
+      document.status_code,
+      document.body,
+      counts
+    )
+  end
+
+
+  def initialize(time, max_age, age, status_code, body, counts)
+    @time, @max_age, @age = time, max_age, age
+    @status_code, @body = status_code, body
+    HEADER_MAPPING.each do |name, header|
+      instance_variable_set("@#{name}", counts[name])
+    end
   end
 
   # This is horrible, I'll be getting rid of this and the rest of the
   # indeterminate data type stuff soon.
   def dump
-    if @data.kind_of? String
-      @data
-    else
-      @data.dump
-    end
+    to_yaml
   end
 
-  def review_count
-    header('X-Reevoo-ReviewCount').to_i
-  end
-
-  def offer_count
-    header('X-Reevoo-OfferCount').to_i
-  end
-
-  def conversation_count
-    header('X-Reevoo-ConversationCount').to_i
-  end
-
-  def best_price
-    header('X-Reevoo-BestPrice').to_i
-  end
-
-  def header(header_name)
-    headers[header_name.downcase] if is_valid?
-  end
-
-  def headers
-    return @headers if defined?(@headers)
-
-    if data.respond_to?(:headers)
-      @headers = {}
-      data.headers.each_pair do |k,v|
-        @headers.merge!({k.downcase => v})
-      end
-    else
-      @head = @head.split("\n")
-      @head.shift
-      @headers = Hash[*@head.map{|line| line.split(": ").map(&:downcase)}.flatten]
-    end
-
-    @headers
-  end
-
-  def status_code
-    if data.respond_to? :status_code
-      data.status_code
-    else
-      headers["status"].to_i
-    end
+  def self.load(file)
+    YAML.load(file)
   end
 
   def is_valid?
@@ -69,11 +80,7 @@ class ReevooMark::Document
 
   def body
     if is_valid?
-      if data.respond_to? :body
-        data.body
-      else
-        @body
-      end
+      @body
     else
       ""
     end
@@ -82,33 +89,36 @@ class ReevooMark::Document
   alias render body
 
   def is_cacheable_response?
-    return false unless data
-    data.status_code < 500
+    status_code < 500
   end
 
   def has_expired?
-    return true unless data
     max_age < current_age
   end
 
-  def max_age
-    if cache_header = header('Cache-Control')
-      cache_header.match("max-age=([0-9]+)")[1].to_i
-    else
-      0
-    end
+  def current_age
+    Time.now.to_i - (time.to_i - age.to_i)
   end
 
-  def current_age
-    Time.now.to_i - mtime.to_i + header('Age').to_i
+  def revalidated_for(max_age)
+    counts = HEADER_MAPPING.keys.inject(Hash.new(0)){|acc, name|
+      acc.merge(name => self.send(name))
+    }
+    ReevooMark::Document.new(
+      Time.now.to_i,
+      max_age || self.max_age,
+      0,
+      self.status_code,
+      self.body,
+      counts
+    )
   end
 end
 
-class ReevooMark::ErrorDocument < ReevooMark::Document
-  def initialize
-    super(
-      OpenStruct.new(status_code: 599, body: "Internal error", headers: {}),
-      Time.now
-    )
+# A simple factory for building blank, cachable documents so network errors can
+# be handled without splashing special case code all over the show.
+module ReevooMark::ErrorDocument
+  def self.new
+    ReevooMark::Document.new(Time.now, 300, 0, 599, "", {})
   end
 end

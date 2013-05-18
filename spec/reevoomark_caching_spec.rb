@@ -18,7 +18,7 @@ describe "ReevooMark caching" do
       ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
 
       filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
-      File.open("tmp/cache/#{filename}.cache", 'r').read.should match /No content found/
+      File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/No content found/)
     end
 
     it "saves a 500 response to the cache file" do
@@ -26,15 +26,27 @@ describe "ReevooMark caching" do
       ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
 
       filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
-      File.open("tmp/cache/#{filename}.cache", 'r').read.should match /My face is on fire/
+      File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/My face is on fire/)
     end
   end
 
   context 'with a valid cache' do
     before do
       filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
+      example = ReevooMark::Document.new(
+        Time.now.to_i,
+        1,
+        0,
+        200,
+        "I'm a cache record.",
+        :review_count => 1,
+        :offer_count => 2,
+        :conversation_count => 3,
+        :best_price => 4
+      )
+
       File.open("tmp/cache/#{filename}.cache", 'w') do |file|
-        file << EXAMPLE_CACHE_FILE
+        file << example.dump
       end
     end
 
@@ -57,9 +69,20 @@ describe "ReevooMark caching" do
   context 'with an expired cache' do
     before do
       filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
+      example = ReevooMark::Document.new(
+        Time.now.to_i - 60*60,
+        1,
+        0,
+        200,
+        "I'm a cache record.",
+        :review_count => 1,
+        :offer_count => 2,
+        :conversation_count => 3,
+        :best_price => 4
+      )
+
       File.open("tmp/cache/#{filename}.cache", 'w') do |file|
-        file << EXAMPLE_CACHE_FILE
-        File.stub(:mtime).and_return(Time.now - 60*60)
+        file << example.dump
       end
     end
 

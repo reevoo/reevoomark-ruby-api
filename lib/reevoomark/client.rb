@@ -13,16 +13,20 @@ class ReevooMark::Client
     sep = (@url =~ /\?/) ? "&" : "?"
     remote_url = "#{@url}#{sep}sku=#{sku}&retailer=#{trkref}"
 
-    document = ReevooMark::ErrorDocument.new
+    error_document = ReevooMark::ErrorDocument.new
 
-    begin
-      document = @cache.fetch(remote_url){
-        ReevooMark::Document.new(load_from_remote(remote_url), Time.now)
-      }
-    rescue FetchError
-      # Fetch, or fall back to the error document.
-      document = @cache.fetch_expired(remote_url) || document
-    end
+    document = @cache.fetch(remote_url){
+      begin
+        document = ReevooMark::Document.from_document(load_from_remote(remote_url))
+        if document.status_code >= 500
+          @cache.fetch_expired(remote_url, :revalidate_for => 300) || document
+        else
+          document
+        end
+      rescue FetchError
+        error_document
+      end
+    }
 
     return document
   end
@@ -48,8 +52,6 @@ protected
     Timeout.timeout @timeout do
       response = @http_client.get(remote_url, nil, headers)
     end
-
-    raise FetchError, "Server side error" if response.code >= 500
 
     return response
 
