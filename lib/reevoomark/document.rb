@@ -10,7 +10,7 @@ class ReevooMark::Document
 
   HEADER_MAPPING.each do |name, header|
     define_method name do
-      instance_variable_get("@#{name}").to_i
+      @counts[name]
     end
   end
 
@@ -34,7 +34,7 @@ class ReevooMark::Document
     headers = HeaderSet.new(document.headers)
 
     counts = HEADER_MAPPING.inject(Hash.new(0)){ |acc, (name, header)|
-      acc.merge(name => headers[header])
+      acc.merge(name => headers[header].to_i)
     }
 
     if cache_header = headers['Cache-Control']
@@ -59,9 +59,7 @@ class ReevooMark::Document
   def initialize(time, max_age, age, status_code, body, counts)
     @time, @max_age, @age = time, max_age, age
     @status_code, @body = status_code, body
-    HEADER_MAPPING.each do |name, header|
-      instance_variable_set("@#{name}", counts[name])
-    end
+    @counts = counts
   end
 
   def is_valid?
@@ -91,16 +89,13 @@ class ReevooMark::Document
   end
 
   def revalidated_for(max_age)
-    counts = HEADER_MAPPING.keys.inject(Hash.new(0)){|acc, name|
-      acc.merge(name => self.send(name))
-    }
     ReevooMark::Document.new(
       Time.now.to_i,
-      max_age || self.max_age,
+      max_age || @max_age,
       0,
-      self.status_code,
-      self.body,
-      counts
+      @status_code,
+      @body,
+      @counts
     )
   end
 end
