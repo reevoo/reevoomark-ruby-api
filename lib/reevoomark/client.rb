@@ -13,8 +13,6 @@ class ReevooMark::Client
     sep = (@url =~ /\?/) ? "&" : "?"
     remote_url = "#{@url}#{sep}sku=#{sku}&retailer=#{trkref}"
 
-    error_document = ReevooMark::ErrorDocument.new
-
     document = @cache.fetch(remote_url){
       begin
         document = ReevooMark::Document.from_response(load_from_remote(remote_url))
@@ -24,7 +22,7 @@ class ReevooMark::Client
           document
         end
       rescue FetchError
-        error_document
+        ReevooMark::Document.error
       end
     }
 

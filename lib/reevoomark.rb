@@ -14,6 +14,7 @@ module ReevooMark
 end
 
 require 'reevoomark/document'
+require 'reevoomark/document/factory'
 require 'reevoomark/client'
 require 'reevoomark/cache'
 require 'reevoomark/cache/entry'

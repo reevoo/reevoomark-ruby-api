@@ -1,66 +1,34 @@
 class ReevooMark::Document
   attr_reader :time, :status_code, :age, :max_age
 
-  HEADER_MAPPING = {
-    :review_count => 'X-Reevoo-ReviewCount',
-    :offer_count => 'X-Reevoo-OfferCount',
-    :conversation_count => 'X-Reevoo-ConversationCount',
-    :best_price => 'X-Reevoo-BestPrice'
-  }
-
-  HEADER_MAPPING.each do |name, header|
-    define_method name do
-      @counts[name]
-    end
-  end
-
-  class HeaderSet < Hash
-    def initialize(hash)
-      hash.each do |k,v|
-        self[k] = v
-      end
-    end
-
-    def [] k
-      super(k.downcase)
-    end
-
-    def []= k,v
-      super(k.downcase, v)
-    end
-  end
-
-  # Factory method for building a document from a HTTP response.
   def self.from_response(response)
-    headers = HeaderSet.new(response.headers)
-
-    counts = HEADER_MAPPING.inject(Hash.new(0)){ |acc, (name, header)|
-      acc.merge(name => headers[header].to_i)
-    }
-
-    if cache_header = headers['Cache-Control']
-      max_age = cache_header.match("max-age=([0-9]+)")[1].to_i
-    else
-      max_age = 300
-    end
-
-    age = headers['Age'].to_i
-
-    new(
-      Time.now,
-      max_age,
-      age,
-      response.status_code,
-      response.body,
-      counts
-    )
+    ReevooMark::Document::Factory.from_response(response)
   end
 
+  def self.error
+    ReevooMark::Document::Factory.new_error_document
+  end
 
   def initialize(time, max_age, age, status_code, body, counts)
     @time, @max_age, @age = time, max_age, age
     @status_code, @body = status_code, body
     @counts = counts
+  end
+
+  def review_count
+    @counts[:review_count]
+  end
+
+  def offer_count
+    @counts[:offer_count]
+  end
+
+  def conversation_count
+    @counts[:conversation_count]
+  end
+
+  def best_price
+    @counts[:best_price]
   end
 
   def is_valid?
@@ -94,13 +62,5 @@ class ReevooMark::Document
       @body,
       @counts
     )
-  end
-end
-
-# A simple factory for building blank, cachable documents so network errors can
-# be handled without splashing special case code all over the show.
-module ReevooMark::ErrorDocument
-  def self.new
-    ReevooMark::Document.new(Time.now, 300, 0, 599, "", {})
   end
 end
