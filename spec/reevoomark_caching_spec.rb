@@ -46,7 +46,7 @@ describe "ReevooMark caching" do
       )
 
       File.open("tmp/cache/#{filename}.cache", 'w') do |file|
-        file << example.dump
+        file << example.to_yaml
       end
     end
 
@@ -82,7 +82,7 @@ describe "ReevooMark caching" do
       )
 
       File.open("tmp/cache/#{filename}.cache", 'w') do |file|
-        file << example.dump
+        file << example.to_yaml
       end
     end
 

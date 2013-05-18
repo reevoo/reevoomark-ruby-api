@@ -19,12 +19,12 @@ class ReevooMark::Cache::Entry
 
   def document
     raise "Loading from cache, where no cache exists is bad." unless exists?
-    @document ||= ReevooMark::Document.load(read)
+    @document ||= YAML.load(read)
   end
 
   def document= doc
     @document = nil # Flush the memoized value
-    write doc.dump
+    write doc.to_yaml
     doc
   end
 

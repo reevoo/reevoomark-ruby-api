@@ -64,16 +64,6 @@ class ReevooMark::Document
     end
   end
 
-  # This is horrible, I'll be getting rid of this and the rest of the
-  # indeterminate data type stuff soon.
-  def dump
-    to_yaml
-  end
-
-  def self.load(file)
-    YAML.load(file)
-  end
-
   def is_valid?
     status_code == 200
   end
