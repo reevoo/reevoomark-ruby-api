@@ -10,7 +10,7 @@ class ReevooMark::Cache::Entry
   end
 
   def expired?
-    document.has_expired?
+    document.expired?
   end
 
   def valid?

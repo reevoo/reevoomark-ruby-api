@@ -1,5 +1,5 @@
 class ReevooMark::Document
-  attr_reader :time, :status_code, :age, :max_age
+  attr_reader :time, :status_code, :age, :max_age, :counts
 
   def self.from_response(response)
     ReevooMark::Document::Factory.from_response(response)
@@ -32,7 +32,7 @@ class ReevooMark::Document
   end
 
   def is_valid?
-    status_code == 200
+    status_code < 500
   end
 
   def body
@@ -45,12 +45,9 @@ class ReevooMark::Document
 
   alias render body
 
-  def has_expired?
-    max_age < current_age
-  end
-
-  def current_age
-    Time.now.to_i - (time.to_i - age.to_i)
+  def expired?(now = nil)
+    now ||= Time.now
+    max_age < current_age(now)
   end
 
   def revalidated_for(max_age)
@@ -63,4 +60,11 @@ class ReevooMark::Document
       @counts
     )
   end
+
+protected
+  def current_age(now = nil)
+    now ||= Time.now.to_i
+    now.to_i - (time.to_i - age.to_i)
+  end
+
 end
