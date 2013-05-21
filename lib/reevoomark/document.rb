@@ -31,6 +31,10 @@ class ReevooMark::Document
     content_values == other.content_values
   end
 
+  def any?
+    review_count > 0
+  end
+
   def review_count
     @counts[:review_count]
   end

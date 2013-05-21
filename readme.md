@@ -83,8 +83,8 @@ reviews available. If you'd like to handle this yourself, you can check the
 review count before rendering:
 
 ``` ruby
-<% if @reevoo_reviews.review_count > 0 %>
-  <%= @reevoo_reviews.render %>
+<% if @reevoo_reviews.any? %>
+  <%= raw @reevoo_reviews.render %>
 <% else %>
   <h1>No reviews here.</h1>
 <% end %>

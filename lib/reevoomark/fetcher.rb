@@ -22,7 +22,16 @@ class ReevooMark::Fetcher
 
 protected
 
+  def log(message)
+    if defined? Rails
+      Rails.logger.debug message
+    else
+      STDERR.puts message
+    end
+  end
+
   def fetch_http(remote_url)
+    log "ReevooMark::Fetcher: Fetching #{remote_url}"
     Timeout.timeout(@timeout){
       return @http_client.get(remote_url, nil, headers)
     }
