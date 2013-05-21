@@ -8,7 +8,7 @@ class ReevooMark::Fetcher
     @http_client = HTTPClient.new
     @http_client.connect_timeout = timeout
     @headers = {
-      'User-Agent' => 'ReevooMark Ruby Widget/8',
+      'User-Agent' => "ReevooMark Ruby Widget/#{ReevooMark::VERSION}",
       'Referer' => "http://#{Socket::gethostname}"
     }
   end

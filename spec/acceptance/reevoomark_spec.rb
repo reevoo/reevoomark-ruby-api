@@ -23,7 +23,7 @@ describe ReevooMark do
       it "passes the correct headers in the request" do
         stub_request(:get, /.*example.*/).to_return(:body => "")
         expected_headers_hash = {
-          'User-Agent' => 'ReevooMark Ruby Widget/8',
+          'User-Agent' => "ReevooMark Ruby Widget/#{ReevooMark::VERSION}",
           'Referer' => "http://#{Socket::gethostname}"
         }
 

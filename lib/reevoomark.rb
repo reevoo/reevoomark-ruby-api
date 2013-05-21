@@ -33,6 +33,7 @@ module ReevooMark
   end
 end
 
+require 'reevoomark/version'
 require 'reevoomark/document'
 require 'reevoomark/document/factory'
 require 'reevoomark/client'
