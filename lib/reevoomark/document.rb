@@ -15,6 +15,22 @@ class ReevooMark::Document
     @counts = counts
   end
 
+  def identity_values
+    [current_age(0), @content_values]
+  end
+
+  def content_values
+    [@status_code, @body, @counts]
+  end
+
+  def == other
+    identity_values == other.identity_values
+  end
+
+  def === other
+    content_values == other.content_values
+  end
+
   def review_count
     @counts[:review_count]
   end
