@@ -11,5 +11,5 @@ Gem::Specification.new do |s|
 
   s.files             = Dir.glob("{lib,example,spec}/**/*")
   s.require_paths     = ["lib"]
-  s.add_dependency 'httpclient'
+  s.add_dependency    'httpclient'
 end

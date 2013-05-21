@@ -26,14 +26,16 @@ module ReevooMark
   end
 
   # Creates a new client.
-  def self.create_client(cache_dir, base_url)
+  def self.create_client(cache_dir, base_url, options = {})
     cache = ReevooMark::Cache.new(cache_dir)
-    ReevooMark::Client.new(cache, base_url)
+    fetcher = ReevooMark::Fetcher.new(options[:timeout] || 1)
+    ReevooMark::Client.new(cache, fetcher, base_url)
   end
 end
 
 require 'reevoomark/document'
 require 'reevoomark/document/factory'
 require 'reevoomark/client'
+require 'reevoomark/fetcher'
 require 'reevoomark/cache'
 require 'reevoomark/cache/entry'
