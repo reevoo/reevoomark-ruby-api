@@ -76,6 +76,16 @@ By default Reevoo will display helpful content to the user when there are no rev
 <% end %>
 ```
 
+### Rendering Issues
+
+Any changes to the visiblity settings of the 'traffic reviews solution' will require you to call the code below to ensure the correct formatting is applied.
+
+NOTE: This assumes you are using the latest version of the Reevoo JS library.
+
+``` javascript
+ReevooMark.auto_scale()
+```
+
 ## Tracking
 
 If you display the reviews in a tabbed display, or otherwise require visitors to your site to click an element before seeing the embedded reviews, add the following onclick attribute to track the clickthroughs:
