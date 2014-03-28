@@ -49,32 +49,20 @@ In your server-side code, require the gem:
 require 'reevoomark'
 ```
 
-Initialise the client using your customer TRKREF and the product sku. Make sure you replace `<reevoo_cache>` with the path of a directory that can be used to cache review content:
-
-``` ruby
-@reevoo_mark = ReevooMark.new("<reevoo_cache>", "http://mark.reevoo.com/reevoomark/embeddable_reviews.html", "<TRKREF>", "<SKU>")
+## Usage:
+Somewhere in you application config, build a client.
+```
+$reevoomark_client = ReevooMark.create_client(
+  Rails.root.join("tmp/reevoo_cache"),
+  "http://mark.reevoo.com/reevoomark/embeddable_reviews.html"
+)
 ```
 
-It is also possible to specify locale and the number of reviews you'd like in the URI:
+In your controller (assuming @entry.sku is your product SKU):
+@reevoo_reviews = $reevoomark_client.fetch('YOUR TRKREF', @entry.sku)
 
-```ruby
-@reevoo_mark = ReevooMark.new("<reevoo_cache>", "http://mark.reevoo.com/reevoomark/fr-FR/10/embeddable_reviews.html", "<TRKREF>", "<SKU>")
-```
-
-Render your embedded review content inside your view.
-```ruby
-<%= @reevoo_mark.render %>
-```
-
-By default Reevoo will display helpful content to the user when there are no reviews available. If you'd like to handle this yourself, you can check the review count before rendering:
-
-``` ruby
-<% if @reevoo_mark.review_count.to_i > 0 %>
-  <%= @reevoo_mark.render %>
-<% else %>
-  <h1>No reviews here.</h1>
-<% end %>
-```
+In your view:
+<%= @reevoo_reviews.body %>
 
 ### Rendering Issues
 
@@ -106,7 +94,7 @@ more information.
 
 (The MIT License)
 
-Copyright (c) 2008 - 2010:
+Copyright (c) 2008 - 2014:
 
 * [Reevoo](http://www.reevoo.com)
 
