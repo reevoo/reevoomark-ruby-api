@@ -59,10 +59,14 @@ $reevoomark_client = ReevooMark.create_client(
 ```
 
 In your controller (assuming @entry.sku is your product SKU):
+```
 @reevoo_reviews = $reevoomark_client.fetch('YOUR TRKREF', @entry.sku)
+```
 
 In your view:
+```
 <%= @reevoo_reviews.body %>
+```
 
 ### Rendering Issues
 
