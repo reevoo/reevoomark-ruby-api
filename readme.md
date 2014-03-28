@@ -1,5 +1,7 @@
 # reevoomark-ruby-api
 
+[![Build Status](https://travis-ci.org/reevoo/reevoomark-ruby-api.svg?branch=master)](https://travis-ci.org/reevoo/reevoomark-ruby-api)
+
 ##Description
 
 The reevoomark-ruby-api is a Ruby gem for ReevooMark and Reevoo Essentials customers who want to quickly and easily integrate Reevoo content in to their sites server-side.
