@@ -18,7 +18,7 @@ describe ReevooMark::Client do
   describe "#fetch" do
     it "fetches from the cache first" do
       cache.should_receive(:fetch).with(
-        "http://example.com/foo?bar=bum&sku=123&retailer=TST"
+        "http://example.com/foo?bar=bum&sku=123&trkref=TST"
       )
 
       subject.fetch("TST", "123")

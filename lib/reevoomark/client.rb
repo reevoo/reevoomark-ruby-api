@@ -23,7 +23,7 @@ protected
 
   def url_for(trkref, sku)
     sep = (@url =~ /\?/) ? "&" : "?"
-    "#{@url}#{sep}sku=#{sku}&retailer=#{trkref}"
+    "#{@url}#{sep}sku=#{sku}&trkref=#{trkref}"
   end
 
 end
