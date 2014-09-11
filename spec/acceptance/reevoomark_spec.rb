@@ -9,15 +9,15 @@ describe ReevooMark do
 
     describe "the http request it makes" do
       it "GETs the url with the trkref and sku" do
-        stub_request(:get, "http://example.com/foo?sku=SKU123&retailer=PNY").to_return(:body => "")
+        stub_request(:get, "http://example.com/foo?sku=SKU123&trkref=PNY").to_return(:body => "")
         ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
-        WebMock.should have_requested(:get, "http://example.com/foo?sku=SKU123&retailer=PNY")
+        WebMock.should have_requested(:get, "http://example.com/foo?sku=SKU123&trkref=PNY")
       end
 
       it "copes fine with urls that already have query strings" do
-        stub_request(:get, "http://example.com/foo?bar=baz&sku=SKU123&retailer=PNY").to_return(:body => "")
+        stub_request(:get, "http://example.com/foo?bar=baz&sku=SKU123&trkref=PNY").to_return(:body => "")
         ReevooMark.new("tmp/cache/", "http://example.com/foo?bar=baz", "PNY", "SKU123")
-        WebMock.should have_requested(:get, "http://example.com/foo?bar=baz&sku=SKU123&retailer=PNY")
+        WebMock.should have_requested(:get, "http://example.com/foo?bar=baz&sku=SKU123&trkref=PNY")
       end
 
       it "passes the correct headers in the request" do

@@ -9,7 +9,7 @@ describe "ReevooMark caching" do
     it 'saves a valid fetched response to the cache file' do
       ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
 
-      filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
+      filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&trkref=PNY")
       File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/test/)
     end
 
@@ -17,7 +17,7 @@ describe "ReevooMark caching" do
       stub_request(:get, /.*example.*/).to_return(:body => "No content found", :status => 404)
       ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
 
-      filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
+      filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&trkref=PNY")
       File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/No content found/)
     end
 
@@ -25,14 +25,14 @@ describe "ReevooMark caching" do
       stub_request(:get, /.*example.*/).to_return(:body => "My face is on fire", :status => 500)
       ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
 
-      filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
+      filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&trkref=PNY")
       File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/My face is on fire/)
     end
   end
 
   context 'with a valid cache' do
     before do
-      filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
+      filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&trkref=PNY")
       example = ReevooMark::Document.new(
         Time.now.to_i,
         1,
@@ -54,7 +54,7 @@ describe "ReevooMark caching" do
 
     it "does NOT make an http request" do
       subject
-      WebMock.should_not have_requested(:get, "http://example.com/foo?sku=SKU123&retailer=PNY")
+      WebMock.should_not have_requested(:get, "http://example.com/foo?sku=SKU123&trkref=PNY")
     end
 
     it "returns the cached response body" do
@@ -68,7 +68,7 @@ describe "ReevooMark caching" do
 
   context 'with an expired cache' do
     before do
-      filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
+      filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&trkref=PNY")
       example = ReevooMark::Document.new(
         Time.now.to_i - 60*60,
         1,
@@ -90,7 +90,7 @@ describe "ReevooMark caching" do
 
     it "makes an http request" do
       subject
-      WebMock.should have_requested(:get, "http://example.com/foo?sku=SKU123&retailer=PNY")
+      WebMock.should have_requested(:get, "http://example.com/foo?sku=SKU123&trkref=PNY")
     end
 
     context "and a functioning server" do
@@ -99,7 +99,7 @@ describe "ReevooMark caching" do
       end
       it 'saves the fetched response to the cache file' do
         subject
-        filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
+        filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&trkref=PNY")
         File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/test/)
       end
     end
@@ -116,7 +116,7 @@ describe "ReevooMark caching" do
 
       it 'does not save the fetched response to the cache file' do
         subject
-        filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&retailer=PNY")
+        filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&trkref=PNY")
         File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/I'm a cache record/)
       end
     end
