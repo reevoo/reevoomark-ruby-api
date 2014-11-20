@@ -10,7 +10,7 @@ describe "ReevooMark caching" do
       ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
 
       filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&trkref=PNY")
-      File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/test/)
+      expect(File.open("tmp/cache/#{filename}.cache", 'r').read).to match(/test/)
     end
 
     it "saves a 404 response to the cache file" do
@@ -18,7 +18,7 @@ describe "ReevooMark caching" do
       ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
 
       filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&trkref=PNY")
-      File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/No content found/)
+      expect(File.open("tmp/cache/#{filename}.cache", 'r').read).to match(/No content found/)
     end
 
     it "saves a 500 response to the cache file" do
@@ -26,7 +26,7 @@ describe "ReevooMark caching" do
       ReevooMark.new("tmp/cache/", "http://example.com/foo", "PNY", "SKU123")
 
       filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&trkref=PNY")
-      File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/My face is on fire/)
+      expect(File.open("tmp/cache/#{filename}.cache", 'r').read).to match(/My face is on fire/)
     end
   end
 
@@ -54,15 +54,15 @@ describe "ReevooMark caching" do
 
     it "does NOT make an http request" do
       subject
-      WebMock.should_not have_requested(:get, "http://example.com/foo?sku=SKU123&trkref=PNY")
+      expect(WebMock).not_to have_requested(:get, "http://example.com/foo?sku=SKU123&trkref=PNY")
     end
 
     it "returns the cached response body" do
-      subject.review_count.should == 1
-      subject.offer_count.should == 2
-      subject.conversation_count.should == 3
-      subject.best_price.should == 4
-      subject.render.should == "I'm a cache record."
+      expect(subject.review_count).to eq(1)
+      expect(subject.offer_count).to eq(2)
+      expect(subject.conversation_count).to eq(3)
+      expect(subject.best_price).to eq(4)
+      expect(subject.render).to eq("I'm a cache record.")
     end
   end
 
@@ -90,17 +90,17 @@ describe "ReevooMark caching" do
 
     it "makes an http request" do
       subject
-      WebMock.should have_requested(:get, "http://example.com/foo?sku=SKU123&trkref=PNY")
+      expect(WebMock).to have_requested(:get, "http://example.com/foo?sku=SKU123&trkref=PNY")
     end
 
     context "and a functioning server" do
       it "returns the response body" do
-        subject.render.should == "test"
+        expect(subject.render).to eq("test")
       end
       it 'saves the fetched response to the cache file' do
         subject
         filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&trkref=PNY")
-        File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/test/)
+        expect(File.open("tmp/cache/#{filename}.cache", 'r').read).to match(/test/)
       end
     end
 
@@ -111,13 +111,13 @@ describe "ReevooMark caching" do
       end
 
       it "returns the cached response body" do
-        subject.render.should == "I'm a cache record."
+        expect(subject.render).to eq("I'm a cache record.")
       end
 
       it 'does not save the fetched response to the cache file' do
         subject
         filename = Digest::MD5.hexdigest("http://example.com/foo?sku=SKU123&trkref=PNY")
-        File.open("tmp/cache/#{filename}.cache", 'r').read.should match(/I'm a cache record/)
+        expect(File.open("tmp/cache/#{filename}.cache", 'r').read).to match(/I'm a cache record/)
       end
     end
 

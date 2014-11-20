@@ -17,7 +17,7 @@ describe ReevooMark::Client do
 
   describe "#fetch" do
     it "fetches from the cache first" do
-      cache.should_receive(:fetch).with(
+      expect(cache).to receive(:fetch).with(
         "http://example.com/foo?bar=bum&sku=123&trkref=TST"
       )
 
@@ -29,8 +29,8 @@ describe ReevooMark::Client do
         yield
       end
 
-      fetcher.should_receive(:fetch).and_return valid_doc
-      subject.fetch("TST", "123").should == valid_doc
+      expect(fetcher).to receive(:fetch).and_return valid_doc
+      expect(subject.fetch("TST", "123")).to eq(valid_doc)
     end
 
 
@@ -38,18 +38,18 @@ describe ReevooMark::Client do
       def cache.fetch(remote_url, &block)
         yield
       end
-      cache.should_receive(:fetch_expired).and_return(valid_doc)
-      fetcher.should_receive(:fetch).and_return invalid_doc
-      subject.fetch("TST", "123").should == valid_doc
+      expect(cache).to receive(:fetch_expired).and_return(valid_doc)
+      expect(fetcher).to receive(:fetch).and_return invalid_doc
+      expect(subject.fetch("TST", "123")).to eq(valid_doc)
     end
 
     it "if all we have is errors, let them eat errors" do
       def cache.fetch(remote_url, &block)
         yield
       end
-      cache.should_receive(:fetch_expired).and_return(invalid_doc)
-      fetcher.should_receive(:fetch).and_return invalid_doc
-      subject.fetch("TST", "123").should == invalid_doc
+      expect(cache).to receive(:fetch_expired).and_return(invalid_doc)
+      expect(fetcher).to receive(:fetch).and_return invalid_doc
+      expect(subject.fetch("TST", "123")).to eq(invalid_doc)
     end
   end
 

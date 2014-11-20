@@ -39,11 +39,11 @@ describe ReevooMark::Document do
       counts = double()
     )
 
-    doc.time.should be time
-    doc.max_age.should be max_age
-    doc.age.should be age
-    doc.status_code.should be status_code
-    doc.counts.should be counts
+    expect(doc.time).to be time
+    expect(doc.max_age).to be max_age
+    expect(doc.age).to be age
+    expect(doc.status_code).to be status_code
+    expect(doc.counts).to be counts
   end
 
   describe '#body' do
@@ -57,7 +57,7 @@ describe ReevooMark::Document do
         counts = double()
       )
 
-      doc.body.should == ""
+      expect(doc.body).to eq("")
     end
 
     it "returns the body if it's valid" do
@@ -70,7 +70,7 @@ describe ReevooMark::Document do
         counts = double()
       )
 
-      doc.body.should == body
+      expect(doc.body).to eq(body)
 
       doc = ReevooMark::Document.new(
         time = double(),
@@ -81,7 +81,7 @@ describe ReevooMark::Document do
         counts = double()
       )
 
-      doc.render.should == body
+      expect(doc.render).to eq(body)
     end
 
     context "with a documnt" do
@@ -96,17 +96,17 @@ describe ReevooMark::Document do
 
       describe '#has_expired?' do
         it "is expired after the correct number of secconds" do
-          doc.should_not be_expired(1)
-          doc.should_not be_expired(6)
-          doc.should_not be_expired(11)
-          doc.should be_expired(16)
+          expect(doc).not_to be_expired(1)
+          expect(doc).not_to be_expired(6)
+          expect(doc).not_to be_expired(11)
+          expect(doc).to be_expired(16)
         end
       end
 
       describe "#revalidated_for" do
         it "creates a new document, valid for a given ammoiunt of time" do
-          doc.revalidated_for(1).should_not be_expired
-          doc.revalidated_for(-1).should be_expired
+          expect(doc.revalidated_for(1)).not_to be_expired
+          expect(doc.revalidated_for(-1)).to be_expired
         end
       end
 
