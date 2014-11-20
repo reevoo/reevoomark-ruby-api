@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe ReevooMark::Document do
   describe "#any?" do
-    it "returns true iff the review_count > 0" do
+    it "returns true if the review_count > 0" do
       doc = ReevooMark::Document.new(
         time = double(),
         max_age = double(),
@@ -12,10 +12,10 @@ describe ReevooMark::Document do
         counts = {:review_count => 4}
       )
 
-      doc.any?.should be_true
+      expect(doc).to be_any
     end
 
-    it "returns false iff the review_count <= 0" do
+    it "returns false if the review_count <= 0" do
       doc = ReevooMark::Document.new(
         time = double(),
         max_age = double(),
@@ -25,7 +25,7 @@ describe ReevooMark::Document do
         counts = {:review_count => 0}
       )
 
-      doc.any?.should be_false
+      expect(doc).to_not be_any
     end
   end
 
